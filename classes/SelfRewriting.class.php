@@ -1,5 +1,5 @@
 <?php 
-define('CLASSES_DIR', './classes');
+define('CLASSES_DIR', 'classes');
 
 class SelfRewriting{
 
@@ -36,17 +36,50 @@ class SelfRewriting{
 	 */
 
 	public function __construct($name = ""){
-		echo "Controle en cours <br />";
 		$this->evolutionCheck();
 	}
 
 	private function evolutionCheck(){
+
+		$verbose = true; 
+
 		$className = get_class($this);
 		$fileName = CLASSES_DIR."/".$className.".class.php";
-		echo "Je dois ouvrir le fichier ".$fileName."<br />";
-		$file = fopen($fileName, 'r+');
-		var_dump($file);
+ 		$contenu = htmlspecialchars(file_get_contents($fileName));
+ 		
+ 		// Analyse des variables existantes
+ 		$startVars = strpos($contenu, "#STARTVARS#");
+		$endVars = strpos($contenu, "#ENDVARS#");
+
+		$vars = substr($contenu, ($startVars+15), (int)($endVars-$startVars-18));
+
+		// Etude des variables
+		$myVars = explode('private ', $vars); $vars = array();
+		$myVars = array_filter($myVars, function($v, $k) {return (strpos($v, '$') === 0);}, ARRAY_FILTER_USE_BOTH);
+		foreach($myVars as $key => $value){ array_push($vars, substr($value,1,(strpos($value, ";")-1)));}
+
+		// Variables trouvées et disponibles dans $vars
+
+		if($verbose){ echo sizeof($vars)." variables ont été trouvées : "; foreach($vars as $key => $value){ echo "<br /> - ".$value;}}
+
+
+
+
 	}
+
+	function addSetter($varName){
+
+		$function = "function ";
+
+	}
+
+	function addGetter($varName){
+
+	}
+
+
+
+
 }
 
 
