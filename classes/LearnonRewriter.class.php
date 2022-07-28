@@ -10,29 +10,40 @@ class LearnonRewriter {
     }
 
     public function getClassBody() {
+        $verbose = true;
         $codeLines = [];
         // Class declaration
         $codeLines[] = "class Learnon" . $this->learnon->uuid . " { ";
         $codeLines[] = "";
         // Properties
+
+        if($verbose) echo "<b>Voici la liste des propriétés :</b><br />";
         foreach ($this->listProperties() as $property) {
             $codeLines[] = "\t" . $this->getPropertyBody($property);
+            if($verbose) echo "- ".$property->getName()." <br />";
+
         }
         $codeLines[] = "";
+        
+
         // Methods
-        foreach ($this->listMethods() as $method) {
-            foreach ($this->getMethodBody($method) as $codeLine) {
-                $codeLines[] = "\t" . $codeLine;
+            if($verbose) echo "<br /><b>Voici la liste des méthodes :</b><br />";
+            foreach ($this->listMethods() as $method) {
+                foreach ($this->getMethodBody($method) as $codeLine) {
+                    $codeLines[] = "\t" . $codeLine;
+                }
+                $codeLines[] = "";
+                if($verbose) echo "- ".$method->getName()." <br />";
             }
-            $codeLines[] = "";
-        }
         // Functions (methods found in properties because set at runtime)
-        foreach ($this->listFunctions() as $functionName => $function) {
-            foreach ($this->getFunctionBody($functionName, $function) as $codeLine) {
-                $codeLines[] = "\t" . $codeLine;
+            if($verbose) echo "<br /><b>Voici la liste des fonctions :</b><br />";
+            foreach ($this->listFunctions() as $functionName => $function) {
+                foreach ($this->getFunctionBody($functionName, $function) as $codeLine) {
+                    $codeLines[] = "\t" . $codeLine;
+                }
+                $codeLines[] = "";
+                if($verbose) echo "- ".$function->getName()." <br />";
             }
-            $codeLines[] = "";
-        }
         $codeLines[] = "}";
         return join("\n", $codeLines);
     }
@@ -120,6 +131,10 @@ class LearnonRewriter {
         }
         $codeLines[] = "}";
         return $codeLines;
+    }
+
+    public function getMethodName(ReflectionMethod $method)  {
+        return $method->getName();
     }
 
     public function getFunctionBody(string $functionName, ReflectionFunction $function)  {
